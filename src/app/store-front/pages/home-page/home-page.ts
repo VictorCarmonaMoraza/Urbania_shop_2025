@@ -1,6 +1,9 @@
 import { ProductCard } from '@/products/components/product-card/product-card';
+import { ProductsAPI } from '@/products/interfaces/product.interface';
 import { Products } from '@/products/services/products';
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
+
 
 @Component({
   selector: 'app-home-page',
@@ -8,27 +11,31 @@ import { Component, computed, effect, inject } from '@angular/core';
   templateUrl: './home-page.html',
   styleUrl: './home-page.css'
 })
-export class HomePage{
+export class HomePage {
 
   readonly #productService = inject(Products);
-  // usamos directamente el valor del recurso
-  readonly #productsResource = this.#productService.productListHttpResource;
 
-  readonly productsList = computed(() => {
-    const response = this.#productsResource.value();
-    return response?.products ?? [];  // ⬅️ ahora sí es un array
-  });
 
-  // 👇 Este effect se ejecuta automáticamente cuando cambien los datos
-  readonly logProducts = effect(() => {
-    const data = this.productsList();
-    if (data.length > 0) {
-      console.log('📦 Productos cargados (effect):', data);
-    }
-  });
+productsResource = rxResource<ProductsAPI.Response, ProductsAPI.Options>({
+  // 👇 aquí defines los parámetros que quieres mandar al servicio
+  params: () => ({}),
 
-  constructor() {
-    this.#productsResource.reload();
-  }
+  // 👇 aquí defines cómo cargar los datos usando esos parámetros
+  stream: ({ params }) => this.#productService.getProducts({ limit: 1,gender:'women' }),
+
+  // 👇 valor inicial que cumple con la interfaz Response
+  defaultValue: { products: [], count: 0, pages: 0 },
+});
+
+
+
+
+
+
+
+
+
+
 
 }
+

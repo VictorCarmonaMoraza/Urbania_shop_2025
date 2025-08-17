@@ -30,6 +30,12 @@ export namespace ProductsAPI {
     Xs = "XS",
     Xxl = "XXL",
   }
+
+  export interface Options {
+    limit?: number;
+    offset?:number;
+    gender?:string;
+  }
 }
 
 
